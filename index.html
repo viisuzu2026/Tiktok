@@ -10,28 +10,52 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Thư viện xuất PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 p-4 md:p-8 font-sans antialiased min-h-screen">
 
-  <div class="max-w-7xl mx-auto space-y-6">
+  <!-- Vùng xuất PDF sẽ lấy nội dung bên trong div này -->
+  <div id="dashboard-content" class="max-w-7xl mx-auto space-y-6">
     
     <!-- HEADER BÁO CÁO & BỘ LỌC THÁNG -->
-    <header class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
-      <div>
-        <p class="text-xs font-bold text-red-600 uppercase tracking-widest">ISUZU TÂY BẮC SÀI GÒN</p>
-        <h1 id="txt-title" class="text-2xl md:text-3xl font-black text-slate-900 mt-1">
-          ITB - HIỆU QUẢ TIKTOK ORGANIC
-        </h1>
+    <!-- Đổi nền thành đỏ trầm (bg-red-900) và text màu trắng (text-white) -->
+    <header class="bg-red-900 p-6 rounded-2xl shadow-md border border-red-950 flex flex-col md:flex-row justify-between items-center gap-4">
+      
+      <!-- Cột Logo + Tiêu đề -->
+      <div class="flex items-center gap-4">
+        <!-- Chèn Logo ở đây (Thay link src) -->
+        <img src="LINK_LOGO_CUA_BAN_O_DAY" alt="Logo ITB" class="h-14 w-auto object-contain bg-white rounded-lg p-1 shadow-sm" onerror="this.style.display='none'">
+        
+        <div>
+          <p class="text-xs font-bold text-red-200 uppercase tracking-widest">ISUZU TÂY BẮC SÀI GÒN</p>
+          <!-- Tiêu đề sẽ được JS cập nhật (Có chứa chữ ITB và Tháng màu đỏ) -->
+          <h1 id="txt-title" class="text-2xl md:text-3xl font-black text-white mt-1">
+            Đang tải dữ liệu...
+          </h1>
+        </div>
       </div>
-      <div class="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl shadow-inner">
-        <label for="select-month" class="text-sm font-semibold text-slate-600 flex items-center gap-2 whitespace-nowrap">
-          <i class="fa-regular fa-calendar text-red-600"></i> Lọc tháng:
-        </label>
-        <select id="select-month" onchange="fetchData(this.value)" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-red-500 cursor-pointer">
-          <option value="" disabled selected>Đang tải danh sách tháng...</option>
-        </select>
-        <div id="loading" class="text-red-600 ml-1 animate-spin text-lg">
-          <i class="fa-solid fa-circle-notch"></i>
+
+      <!-- Cột Nút PDF + Lọc tháng -->
+      <div class="flex items-center gap-4 flex-wrap justify-end">
+        
+        <!-- Nút Tải PDF -->
+        <button onclick="downloadPDF()" class="bg-white text-red-900 hover:bg-slate-100 border-2 border-transparent hover:border-red-300 px-4 py-2 rounded-xl shadow font-bold text-sm transition-all flex items-center gap-2">
+          <i class="fa-solid fa-file-pdf text-red-600"></i> Tải PDF
+        </button>
+
+        <!-- Bộ lọc tháng -->
+        <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-xl shadow-inner border border-slate-200">
+          <label for="select-month" class="text-sm font-bold text-slate-700 flex items-center gap-2 whitespace-nowrap">
+            <i class="fa-regular fa-calendar text-red-600"></i> Lọc tháng:
+          </label>
+          <!-- Ép màu chữ text-slate-900 và nền trắng để không bị mất màu khi chọn -->
+          <select id="select-month" onchange="fetchData(this.value)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-900 outline-none focus:ring-2 focus:ring-red-500 cursor-pointer">
+            <option value="" disabled selected class="text-slate-900">Đang tải...</option>
+          </select>
+          <div id="loading" class="text-red-600 ml-1 animate-spin text-lg">
+            <i class="fa-solid fa-circle-notch"></i>
+          </div>
         </div>
       </div>
     </header>
@@ -117,7 +141,7 @@
         </div>
       </div>
 
-      <!-- Cột chứa Top 5 Cao Nhất & Top 3 Kém Nhất (Chiếm 7 cột) -->
+      <!-- Cột chứa Top 5 & Bottom 3 (Chiếm 7 cột) -->
       <div class="lg:col-span-7 space-y-6">
         <!-- Top 5 Cao Nhất -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -142,7 +166,7 @@
           </div>
         </div>
 
-        <!-- [MỚI] Top 3 Kém Hiệu Quả Nhất -->
+        <!-- Top 3 Kém Hiệu Quả Nhất -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <h3 class="font-black text-lg text-slate-800 mb-3 flex items-center gap-2">
             <i class="fa-solid fa-arrow-trend-down text-rose-500"></i> Top 3 video kém hiệu quả nhất
@@ -167,7 +191,7 @@
       </div>
     </section>
 
-    <!-- [MỚI] Ô ĐÁNH GIÁ & NHẬN XÉT HIỆU QUẢ TỰ ĐỘNG -->
+    <!-- Ô ĐÁNH GIÁ & NHẬN XÉT HIỆU QUẢ TỰ ĐỘNG -->
     <section class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 rounded-2xl shadow-md border border-slate-700">
       <div class="flex items-start gap-3">
         <div class="p-2.5 bg-red-600 rounded-xl text-white mt-1">
@@ -245,15 +269,18 @@
         const selectElem = document.getElementById('select-month');
         if (data.availableMonths && (selectElem.options.length <= 1 || !selectElem.dataset.loaded)) {
           selectElem.innerHTML = data.availableMonths.map(m => `
-            <option value="${m}" ${m === data.currentMonth ? 'selected' : ''}>${m}</option>
+            <option value="${m}" ${m === data.currentMonth ? 'selected' : ''} class="text-slate-900">${m}</option>
           `).join('');
           selectElem.dataset.loaded = "true";
         } else if (data.currentMonth) {
           selectElem.value = data.currentMonth;
         }
 
-        // 2. Tiêu đề
-        document.getElementById('txt-title').innerText = data.title || "ITB - HIỆU QUẢ TIKTOK ORGANIC";
+        // 2. Cập nhật Title: ITB (đỏ) - HIỆU QUẢ TIKTOK ORGANIC - THÁNG X (đỏ)
+        const displayMonth = data.currentMonth || selectElem.value || "THÁNG...";
+        document.getElementById('txt-title').innerHTML = `
+          <span class="text-red-400">ITB</span> - HIỆU QUẢ TIKTOK ORGANIC - <span class="text-red-400">${displayMonth.toUpperCase()}</span>
+        `;
 
         // 3. 6 Thẻ KPI
         document.getElementById('kpi-views').innerText = data.kpis.views || 0;
@@ -308,7 +335,7 @@
           topBody.innerHTML = `<tr><td colspan="5" class="py-3 text-center text-slate-400">Không có video trong tháng này</td></tr>`;
         }
 
-        // 7. [MỚI] Bảng Top 3 Video Kém Hiệu Quả Nhất
+        // 7. Bảng Top 3 Video Kém Hiệu Quả Nhất
         const bottomBody = document.getElementById('tbl-bottom-videos');
         if (data.bottomVideos && data.bottomVideos.length > 0) {
           bottomBody.innerHTML = data.bottomVideos.map(v => `
@@ -326,7 +353,7 @@
           bottomBody.innerHTML = `<tr><td colspan="5" class="py-3 text-center text-slate-400">Không có dữ liệu video</td></tr>`;
         }
 
-        // 8. [MỚI] Nhận xét tự động
+        // 8. Nhận xét tự động
         document.getElementById('txt-auto-comment').innerText = data.autoComment || "Chưa có nhận xét cho tháng này.";
 
         // 9. Vẽ lại toàn bộ biểu đồ
@@ -421,6 +448,23 @@
           plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } }
         }
       });
+    }
+
+    // Hàm thực thi tải PDF
+    function downloadPDF() {
+      const element = document.getElementById('dashboard-content');
+      const currentMonth = document.getElementById('select-month').value || "Bao_Cao";
+      
+      const opt = {
+        margin:       0.2,
+        filename:     `ITB_Tiktok_${currentMonth}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#f1f5f9' },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
+      // Tạm ẩn biểu tượng load và select dropdown khi in (để bản in đẹp hơn) nếu cần
+      html2pdf().set(opt).from(element).save();
     }
 
     window.addEventListener('DOMContentLoaded', () => fetchData());
