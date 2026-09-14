@@ -240,7 +240,36 @@
       const match = String(rawStr).match(/^\d{4}-(\d{2})-\d{2}/);
       return match ? `THÁNG ${parseInt(match[1], 10)}` : String(rawStr).toUpperCase();
     }
+function updateKpiDiff(elementId, value) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      
+      // Xóa màu mặc định
+      el.classList.remove('text-slate-600', 'text-green-600', 'text-red-600');
+      
+      if (!value || value.trim() === "") {
+        el.innerText = "--";
+        el.classList.add('text-slate-600');
+        return;
+      }
 
+      const strValue = String(value).toLowerCase();
+      // Nếu có dấu + hoặc chữ tăng hoặc mũi tên lên -> Màu Xanh lá
+      if (strValue.includes('+') || strValue.includes('tăng') || strValue.includes('▲')) {
+        el.classList.add('text-green-600');
+        el.innerHTML = `<i class="fa-solid fa-arrow-up text-[10px] mr-1"></i>${value}`;
+      } 
+      // Nếu có dấu - hoặc chữ giảm hoặc mũi tên xuống -> Màu Đỏ
+      else if (strValue.includes('-') || strValue.includes('giảm') || strValue.includes('▼')) {
+        el.classList.add('text-red-600');
+        el.innerHTML = `<i class="fa-solid fa-arrow-down text-[10px] mr-1"></i>${value}`;
+      } 
+      // Không tăng không giảm -> Màu xám
+      else {
+        el.innerText = value;
+        el.classList.add('text-slate-600');
+      }
+    }
     async function fetchData(month = "") {
       const loader = document.getElementById('page-loader');
       loader.classList.remove('hidden'); // Hiển thị màn hình loading
@@ -290,15 +319,15 @@
         `;
 
         document.getElementById('kpi-views').innerText = data?.kpis?.views || 0;
-        document.getElementById('kpi-views-diff').innerText = data?.kpis?.views_diff || "";
+        updateKpiDiff('kpi-views-diff', data?.kpis?.views_diff); 
         document.getElementById('kpi-engagements').innerText = data?.kpis?.engagements || 0;
-        document.getElementById('kpi-engagements-diff').innerText = data?.kpis?.engagements_diff || "";
+        updateKpiDiff('kpi-engagements-diff', data?.kpis?.engagements_diff);
         document.getElementById('kpi-er').innerText = data?.kpis?.er || "0.00%";
-        document.getElementById('kpi-er-diff').innerText = data?.kpis?.er_diff || "";
+        updateKpiDiff('kpi-er-diff', data?.kpis?.er_diff);
         document.getElementById('kpi-profile-views').innerText = data?.kpis?.profile_views || 0;
-        document.getElementById('kpi-profile-views-diff').innerText = data?.kpis?.profile_views_diff || "";
+        updateKpiDiff('kpi-profile-views-diff', data?.kpis?.profile_views_diff);
         document.getElementById('kpi-leads').innerText = data?.kpis?.leads || 0;
-        document.getElementById('kpi-leads-diff').innerText = data?.kpis?.leads_diff || "";
+        updateKpiDiff('kpi-leads-diff', data?.kpis?.leads_diff);
         document.getElementById('kpi-total-videos').innerText = data?.kpis?.total_videos || 0;
 
         document.getElementById('txt-top-view-topic').innerText = data?.highlights?.top_view_topic || "--";
