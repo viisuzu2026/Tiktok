@@ -271,7 +271,16 @@
           `).join('');
           selectElem.dataset.loaded = "true";
         } else if (data.currentMonth) {
-          selectElem.value = data.currentMonth;
+          // Tìm đúng option có chữ "THÁNG..." khớp để hiển thị, tránh lỗi trắng ô do lệch múi giờ
+          const matchedOpt = Array.from(selectElem.options).find(
+            opt => formatMonthDisplay(opt.value) === formatMonthDisplay(data.currentMonth)
+          );
+          
+          if (matchedOpt) {
+            selectElem.value = matchedOpt.value;
+          } else if (month) {
+            selectElem.value = month; // Giữ nguyên lựa chọn bạn vừa bấm
+          }
         }
 
         const rawMonth = data.currentMonth || selectElem.value || "THÁNG...";
