@@ -13,7 +13,14 @@
   <!-- Thư viện xuất PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
-<body class="bg-slate-100 text-slate-800 p-4 md:p-8 font-sans antialiased min-h-screen">
+<body class="bg-slate-100 text-slate-800 p-4 md:p-8 font-sans antialiased min-h-screen relative">
+
+  <!-- MÀN HÌNH LOADING MỜ TOÀN TRANG (Giúp người dùng biết web đang lấy dữ liệu) -->
+  <div id="page-loader" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col justify-center items-center hidden transition-opacity">
+    <i class="fa-solid fa-circle-notch animate-spin text-red-600 text-5xl mb-4"></i>
+    <p class="text-slate-800 font-bold text-lg">Đang đồng bộ dữ liệu từ Google Sheets...</p>
+    <p class="text-slate-500 text-sm mt-1">Vui lòng đợi vài giây</p>
+  </div>
 
   <div id="dashboard-content" class="max-w-7xl mx-auto space-y-6">
     
@@ -22,7 +29,6 @@
       
       <!-- Cột Logo + Tiêu đề -->
       <div class="flex items-center gap-4">
-        <!-- CHÚ Ý: Gắn link logo vào giữa 2 dấu ngoặc kép "" bên dưới -->
         <img src="https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/329677254_3635108843383586_1277159605822078066_n.jpg?stp=dst-jpg_tt6&cstp=mx1786x1786&ctp=s1786x1786&_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=aCQMbTgRN3wQ7kNvwHPIpSK&_nc_oc=AdrOnRGoowU6BfaJQRheklTf65Gqo2nMMtywhQxvFC03i1jYE8r5L_bQxqD7tHEM3fE&_nc_zt=23&_nc_ht=scontent.fsgn2-3.fna&_nc_gid=mcYZ6tJtmgbOCnRbTq5bqg&_nc_ss=7b289&oh=00_AQKjb61F3Q69GBuAywDNzyMtxQwmvVut3lTaNcnUPF4KHQ&oe=6AAD7F73" alt="Logo ITB" class="h-14 w-auto object-contain bg-white rounded-lg p-1 shadow-sm" onerror="this.style.display='none'">
         
         <div>
@@ -46,9 +52,6 @@
           <select id="select-month" onchange="fetchData(this.value)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-900 outline-none focus:ring-2 focus:ring-red-500 cursor-pointer">
             <option value="" disabled selected class="text-slate-900">Đang tải...</option>
           </select>
-          <div id="loading" class="text-red-600 ml-1 animate-spin text-lg">
-            <i class="fa-solid fa-circle-notch"></i>
-          </div>
         </div>
       </div>
     </header>
@@ -239,16 +242,25 @@
     }
 
     async function fetchData(month = "") {
-      const loader = document.getElementById('loading');
-      loader.classList.remove('hidden');
+      const loader = document.getElementById('page-loader');
+      loader.classList.remove('hidden'); // Hiển thị màn hình loading
 
       try {
-        const url = month ? `${SCRIPT_URL}?month=${encodeURIComponent(month)}` : SCRIPT_URL;
+        // THÊM &t=... ĐỂ CHỐNG TRÌNH DUYỆT LƯU CACHE GÂY SAI DỮ LIỆU
+        const cacheBuster = new Date().getTime();
+        let url = SCRIPT_URL;
+        if (month) {
+          url += `?month=${encodeURIComponent(month)}&_t=${cacheBuster}`;
+        } else {
+          url += `?_t=${cacheBuster}`;
+        }
+
         const res = await fetch(url);
         const data = await res.json();
 
         if (data.error) {
           console.error("Lỗi server:", data.error);
+          alert("Lỗi từ Google Apps Script: " + data.error);
           return;
         }
 
@@ -265,8 +277,8 @@
         const rawMonth = data.currentMonth || selectElem.value || "THÁNG...";
         
         document.getElementById('txt-title').innerHTML = `
-  <span class="text-yellow-400">ITB</span> - HIỆU QUẢ TIKTOK ORGANIC - <span class="text-yellow-400">${formatMonthDisplay(rawMonth)}</span>
-`;
+          <span class="text-yellow-400">ITB</span> - HIỆU QUẢ TIKTOK ORGANIC - <span class="text-yellow-400">${formatMonthDisplay(rawMonth)}</span>
+        `;
 
         document.getElementById('kpi-views').innerText = data?.kpis?.views || 0;
         document.getElementById('kpi-views-diff').innerText = data?.kpis?.views_diff || "";
@@ -341,7 +353,7 @@
       } catch (err) {
         console.error("Lỗi fetch dữ liệu:", err);
       } finally {
-        loader.classList.add('hidden');
+        loader.classList.add('hidden'); // Tắt màn hình loading khi tải xong
       }
     }
 
