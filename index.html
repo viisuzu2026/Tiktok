@@ -10,24 +10,12 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <style>
-    /* Hiệu ứng loading mượt mà */
-    .fade-enter {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-    .fade-enter-active {
-      opacity: 1;
-      transform: translateY(0);
-      transition: opacity 0.3s, transform 0.3s;
-    }
-  </style>
 </head>
 <body class="bg-slate-100 text-slate-800 p-4 md:p-8 font-sans antialiased min-h-screen">
 
   <div class="max-w-7xl mx-auto space-y-6">
     
-    <!-- HEADER BÁO CÁO & BỘ LỌC THÁNG TỰ ĐỘNG -->
+    <!-- HEADER BÁO CÁO & BỘ LỌC THÁNG -->
     <header class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
       <div>
         <p class="text-xs font-bold text-red-600 uppercase tracking-widest">ISUZU TÂY BẮC SÀI GÒN</p>
@@ -102,56 +90,101 @@
       </div>
     </section>
 
-    <!-- BẢNG PHÂN LOẠI & TOP 5 VIDEO -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Bảng Phân loại nội dung -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <h3 class="font-black text-lg text-slate-800 mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-layer-group text-red-600"></i> Hiệu quả theo phân loại nội dung
-        </h3>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-bold">
-              <tr>
-                <th class="p-2.5 rounded-l-lg">Phân loại</th>
-                <th class="p-2.5 text-center">Số video</th>
-                <th class="p-2.5 text-right">Lượt xem</th>
-                <th class="p-2.5 text-right">Tương tác</th>
-                <th class="p-2.5 text-right rounded-r-lg">ER</th>
-              </tr>
-            </thead>
-            <tbody id="tbl-categories" class="divide-y divide-slate-100">
-              <tr><td colspan="5" class="p-4 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
-            </tbody>
-          </table>
+    <!-- BẢNG PHÂN LOẠI NỘI DUNG & TOP VIDEO -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Bảng Phân loại nội dung (Chiếm 5 cột) -->
+      <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <h3 class="font-black text-lg text-slate-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-layer-group text-red-600"></i> Hiệu quả theo phân loại nội dung
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-bold">
+                <tr>
+                  <th class="p-2.5 rounded-l-lg">Phân loại</th>
+                  <th class="p-2.5 text-center">Video</th>
+                  <th class="p-2.5 text-right">Lượt xem</th>
+                  <th class="p-2.5 text-right">Tương tác</th>
+                  <th class="p-2.5 text-right rounded-r-lg">ER</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-categories" class="divide-y divide-slate-100">
+                <tr><td colspan="5" class="p-4 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <!-- Bảng Top 5 Video -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <h3 class="font-black text-lg text-slate-800 mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-trophy text-amber-500"></i> Top 5 video hiệu quả cao nhất
-        </h3>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-bold">
-              <tr>
-                <th class="p-2.5 rounded-l-lg">Top</th>
-                <th class="p-2.5">Tiêu đề video</th>
-                <th class="p-2.5 text-right">Lượt xem</th>
-                <th class="p-2.5 text-right">ER</th>
-                <th class="p-2.5 text-center rounded-r-lg">Link</th>
-              </tr>
-            </thead>
-            <tbody id="tbl-top-videos" class="divide-y divide-slate-100">
-              <tr><td colspan="5" class="p-4 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
-            </tbody>
-          </table>
+      <!-- Cột chứa Top 5 Cao Nhất & Top 3 Kém Nhất (Chiếm 7 cột) -->
+      <div class="lg:col-span-7 space-y-6">
+        <!-- Top 5 Cao Nhất -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="font-black text-lg text-slate-800 mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-trophy text-amber-500"></i> Top 5 video hiệu quả cao nhất
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-bold">
+                <tr>
+                  <th class="p-2.5 rounded-l-lg">Top</th>
+                  <th class="p-2.5">Tiêu đề video</th>
+                  <th class="p-2.5 text-right">Lượt xem</th>
+                  <th class="p-2.5 text-right">ER</th>
+                  <th class="p-2.5 text-center rounded-r-lg">Link</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-top-videos" class="divide-y divide-slate-100">
+                <tr><td colspan="5" class="p-4 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- [MỚI] Top 3 Kém Hiệu Quả Nhất -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="font-black text-lg text-slate-800 mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-arrow-trend-down text-rose-500"></i> Top 3 video kém hiệu quả nhất
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-rose-50 text-rose-800 text-xs uppercase font-bold">
+                <tr>
+                  <th class="p-2.5 rounded-l-lg">Top</th>
+                  <th class="p-2.5">Tiêu đề video</th>
+                  <th class="p-2.5 text-right">Lượt xem</th>
+                  <th class="p-2.5 text-right">ER</th>
+                  <th class="p-2.5 text-center rounded-r-lg">Link</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-bottom-videos" class="divide-y divide-slate-100">
+                <tr><td colspan="5" class="p-4 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- CHÂN DUNG KHÁCH HÀNG & KHUNG GIỜ VÀNG -->
+    <!-- [MỚI] Ô ĐÁNH GIÁ & NHẬN XÉT HIỆU QUẢ TỰ ĐỘNG -->
+    <section class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 rounded-2xl shadow-md border border-slate-700">
+      <div class="flex items-start gap-3">
+        <div class="p-2.5 bg-red-600 rounded-xl text-white mt-1">
+          <i class="fa-solid fa-lightbulb text-xl"></i>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-black text-lg text-amber-400 uppercase tracking-wide">
+            Đánh Giá & Nhận Xét Chuyên Sâu Của Tháng
+          </h3>
+          <div id="txt-auto-comment" class="mt-3 text-slate-200 text-sm leading-relaxed whitespace-pre-line font-normal">
+            Đang tổng hợp phân tích tự động từ dữ liệu...
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHÂN DUNG KHÁCH HÀNG & BIỂU ĐỒ -->
     <section class="space-y-6">
       <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
         <i class="fa-solid fa-chart-pie text-red-600"></i> Chân dung khách hàng & Khung giờ vàng
@@ -187,8 +220,7 @@
   </div>
 
   <script>
-    // ĐÃ GẮN SẴN LINK API MỚI CỦA BẠN:
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxCNUVT2mCiJvMu_fVx7fe0fsQcaNm0TVSI5kiTT1c4z-3Z3Tp_umjYbuF__hkerMEB/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9bShwFNLh4wXWfESwRXhmDS6Fb8H-hj6FWh1tDm7bmDJ_ktTGfOjZ0aaZ9nma7mnk/exec";
 
     let chartHoursInstance = null;
     let chartAgeInstance = null;
@@ -209,7 +241,7 @@
           return;
         }
 
-        // 1. Đổ danh sách tháng vào thẻ Select (chỉ cập nhật một lần hoặc khi thay đổi)
+        // 1. Dropdown tháng
         const selectElem = document.getElementById('select-month');
         if (data.availableMonths && (selectElem.options.length <= 1 || !selectElem.dataset.loaded)) {
           selectElem.innerHTML = data.availableMonths.map(m => `
@@ -220,7 +252,7 @@
           selectElem.value = data.currentMonth;
         }
 
-        // 2. Cập nhật Tiêu đề báo cáo
+        // 2. Tiêu đề
         document.getElementById('txt-title').innerText = data.title || "ITB - HIỆU QUẢ TIKTOK ORGANIC";
 
         // 3. 6 Thẻ KPI
@@ -247,47 +279,68 @@
         if (data.contentCategories && data.contentCategories.length > 0) {
           catBody.innerHTML = data.contentCategories.map(r => `
             <tr class="hover:bg-slate-50 transition">
-              <td class="py-2.5 font-bold">${r.category}</td>
-              <td class="py-2.5 text-center">${r.videos}</td>
-              <td class="py-2.5 text-right font-medium">${r.views}</td>
-              <td class="py-2.5 text-right">${r.engagements}</td>
-              <td class="py-2.5 text-right font-semibold text-slate-700">${r.er}</td>
+              <td class="py-2 font-bold">${r.category}</td>
+              <td class="py-2 text-center">${r.videos}</td>
+              <td class="py-2 text-right font-medium">${r.views}</td>
+              <td class="py-2 text-right">${r.engagements}</td>
+              <td class="py-2 text-right font-semibold text-slate-700">${r.er}</td>
             </tr>
           `).join('');
         } else {
-          catBody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Không có dữ liệu tháng này</td></tr>`;
+          catBody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Không có dữ liệu</td></tr>`;
         }
 
-        // 6. Bảng Top 5 Video
+        // 6. Bảng Top 5 Video Cao Nhất
         const topBody = document.getElementById('tbl-top-videos');
         if (data.topVideos && data.topVideos.length > 0) {
           topBody.innerHTML = data.topVideos.map(v => `
             <tr class="hover:bg-slate-50 transition">
-              <td class="py-2.5 font-bold text-amber-600">#${v.rank}</td>
-              <td class="py-2.5 max-w-[220px] truncate" title="${v.title}">${v.title}</td>
-              <td class="py-2.5 text-right font-bold">${v.views}</td>
-              <td class="py-2.5 text-right font-semibold text-slate-700">${v.er}</td>
-              <td class="py-2.5 text-center">
+              <td class="py-2 font-bold text-amber-600">#${v.rank}</td>
+              <td class="py-2 max-w-[200px] truncate" title="${v.title}">${v.title}</td>
+              <td class="py-2 text-right font-bold text-slate-800">${v.views}</td>
+              <td class="py-2 text-right font-semibold text-slate-700">${v.er}</td>
+              <td class="py-2 text-center">
                 <a href="${v.link || '#'}" target="_blank" class="text-red-600 hover:text-red-800 font-bold"><i class="fa-brands fa-tiktok"></i></a>
               </td>
             </tr>
           `).join('');
         } else {
-          topBody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Không có video trong tháng này</td></tr>`;
+          topBody.innerHTML = `<tr><td colspan="5" class="py-3 text-center text-slate-400">Không có video trong tháng này</td></tr>`;
         }
 
-        // 7. Render lại toàn bộ biểu đồ theo dữ liệu tháng mới
+        // 7. [MỚI] Bảng Top 3 Video Kém Hiệu Quả Nhất
+        const bottomBody = document.getElementById('tbl-bottom-videos');
+        if (data.bottomVideos && data.bottomVideos.length > 0) {
+          bottomBody.innerHTML = data.bottomVideos.map(v => `
+            <tr class="hover:bg-rose-50/40 transition">
+              <td class="py-2 font-bold text-rose-600">#${v.rank}</td>
+              <td class="py-2 max-w-[200px] truncate text-slate-700" title="${v.title}">${v.title}</td>
+              <td class="py-2 text-right font-bold text-rose-700">${v.views}</td>
+              <td class="py-2 text-right font-semibold text-slate-600">${v.er}</td>
+              <td class="py-2 text-center">
+                <a href="${v.link || '#'}" target="_blank" class="text-rose-500 hover:text-rose-700 font-bold"><i class="fa-brands fa-tiktok"></i></a>
+              </td>
+            </tr>
+          `).join('');
+        } else {
+          bottomBody.innerHTML = `<tr><td colspan="5" class="py-3 text-center text-slate-400">Không có dữ liệu video</td></tr>`;
+        }
+
+        // 8. [MỚI] Nhận xét tự động
+        document.getElementById('txt-auto-comment').innerText = data.autoComment || "Chưa có nhận xét cho tháng này.";
+
+        // 9. Vẽ lại toàn bộ biểu đồ
         renderCharts(data);
 
       } catch (err) {
-        console.error("Lỗi khi fetch dữ liệu từ Google Apps Script:", err);
+        console.error("Lỗi fetch dữ liệu:", err);
       } finally {
         loader.classList.add('hidden');
       }
     }
 
     function renderCharts(data) {
-      // 1. Biểu đồ đường: 24 Khung giờ vàng
+      // Biểu đồ đường Khung giờ vàng
       if (chartHoursInstance) chartHoursInstance.destroy();
       chartHoursInstance = new Chart(document.getElementById('chartHours'), {
         type: 'line',
@@ -315,7 +368,7 @@
         }
       });
 
-      // 2. Biểu đồ tròn: Phân bố Độ tuổi
+      // Biểu đồ tròn Độ tuổi
       if (chartAgeInstance) chartAgeInstance.destroy();
       chartAgeInstance = new Chart(document.getElementById('chartAge'), {
         type: 'doughnut',
@@ -333,7 +386,7 @@
         }
       });
 
-      // 3. Biểu đồ tròn: Tỷ lệ Giới tính
+      // Biểu đồ tròn Giới tính
       if (chartGenderInstance) chartGenderInstance.destroy();
       chartGenderInstance = new Chart(document.getElementById('chartGender'), {
         type: 'pie',
@@ -351,7 +404,7 @@
         }
       });
 
-      // 4. Biểu đồ tròn: Phân bố Tỉnh thành
+      // Biểu đồ tròn Tỉnh thành
       if (chartCityInstance) chartCityInstance.destroy();
       chartCityInstance = new Chart(document.getElementById('chartCity'), {
         type: 'doughnut',
@@ -370,7 +423,6 @@
       });
     }
 
-    // Tự động tải dữ liệu lần đầu tiên khi mở trang
     window.addEventListener('DOMContentLoaded', () => fetchData());
   </script>
 </body>
