@@ -19,12 +19,13 @@
   <div id="dashboard-content" class="max-w-7xl mx-auto space-y-6">
     
     <!-- HEADER BÁO CÁO & BỘ LỌC THÁNG -->
+    <!-- Đổi nền thành đỏ trầm (bg-red-900) và text màu trắng (text-white) -->
     <header class="bg-red-900 p-6 rounded-2xl shadow-md border border-red-950 flex flex-col md:flex-row justify-between items-center gap-4">
       
       <!-- Cột Logo + Tiêu đề -->
       <div class="flex items-center gap-4">
         <!-- Chèn Logo ở đây (Thay link src) -->
-        <img src="https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/329677254_3635108843383586_1277159605822078066_n.jpg?stp=dst-jpg_tt6&cstp=mx1786x1786&ctp=s1786x1786&_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=aCQMbTgRN3wQ7kNvwHPIpSK&_nc_oc=AdrOnRGoowU6BfaJQRheklTf65Gqo2nMMtywhQxvFC03i1jYE8r5L_bQxqD7tHEM3fE&_nc_zt=23&_nc_ht=scontent.fsgn2-3.fna&_nc_gid=2ReZbmRzuGMKMuw6mltoyw&_nc_ss=7b289&oh=00_AQIhSWDVN2XtX_LsWt45niSPajXCSDv100gOd-08RyTMbQ&oe=6AAD7F73" alt="Logo ITB" class="h-14 w-auto object-contain bg-white rounded-lg p-1 shadow-sm" onerror="this.style.display='none'">
+        <img src="LINK_LOGO_CUA_BAN_O_DAY" alt="Logo ITB" class="h-14 w-auto object-contain bg-white rounded-lg p-1 shadow-sm" onerror="this.style.display='none'">
         
         <div>
           <p class="text-xs font-bold text-red-200 uppercase tracking-widest">ISUZU TÂY BẮC SÀI GÒN</p>
@@ -250,17 +251,6 @@
     let chartGenderInstance = null;
     let chartCityInstance = null;
 
-    // HÀM MỚI: Xử lý chuỗi thời gian dài thành chữ "THÁNG X"
-    function formatMonthDisplay(rawStr) {
-      if (!rawStr) return "THÁNG...";
-      // Cắt lấy đúng số tháng trong chuỗi định dạng 2026-04-30T...
-      const match = rawStr.match(/^\d{4}-(\d{2})-\d{2}/);
-      if (match) {
-        return `THÁNG ${parseInt(match[1], 10)}`; // Ví dụ: "04" -> "4"
-      }
-      return rawStr.toUpperCase();
-    }
-
     async function fetchData(month = "") {
       const loader = document.getElementById('loading');
       loader.classList.remove('hidden');
@@ -279,8 +269,7 @@
         const selectElem = document.getElementById('select-month');
         if (data.availableMonths && (selectElem.options.length <= 1 || !selectElem.dataset.loaded)) {
           selectElem.innerHTML = data.availableMonths.map(m => `
-            <!-- Vẫn giữ value là chuỗi gốc để hệ thống hiểu, nhưng text hiển thị đã được format gọn lại -->
-            <option value="${m}" ${m === data.currentMonth ? 'selected' : ''} class="text-slate-900">${formatMonthDisplay(m)}</option>
+            <option value="${m}" ${m === data.currentMonth ? 'selected' : ''} class="text-slate-900">${m}</option>
           `).join('');
           selectElem.dataset.loaded = "true";
         } else if (data.currentMonth) {
@@ -288,10 +277,9 @@
         }
 
         // 2. Cập nhật Title: ITB (đỏ) - HIỆU QUẢ TIKTOK ORGANIC - THÁNG X (đỏ)
-        const rawMonth = data.currentMonth || selectElem.value || "THÁNG...";
-        const displayMonth = formatMonthDisplay(rawMonth); // Dùng hàm format để làm gọn chữ
+        const displayMonth = data.currentMonth || selectElem.value || "THÁNG...";
         document.getElementById('txt-title').innerHTML = `
-          <span class="text-red-400">ITB</span> - HIỆU QUẢ TIKTOK ORGANIC - <span class="text-red-400">${displayMonth}</span>
+          <span class="text-red-400">ITB</span> - HIỆU QUẢ TIKTOK ORGANIC - <span class="text-red-400">${displayMonth.toUpperCase()}</span>
         `;
 
         // 3. 6 Thẻ KPI
@@ -465,19 +453,17 @@
     // Hàm thực thi tải PDF
     function downloadPDF() {
       const element = document.getElementById('dashboard-content');
-      
-      // Lấy tên tháng gọn gàng cho tên file
-      const rawMonth = document.getElementById('select-month').value;
-      const safeMonthName = formatMonthDisplay(rawMonth).replace(' ', '_') || "Bao_Cao";
+      const currentMonth = document.getElementById('select-month').value || "Bao_Cao";
       
       const opt = {
         margin:       0.2,
-        filename:     `ITB_Tiktok_${safeMonthName}.pdf`,
+        filename:     `ITB_Tiktok_${currentMonth}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#f1f5f9' },
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
 
+      // Tạm ẩn biểu tượng load và select dropdown khi in (để bản in đẹp hơn) nếu cần
       html2pdf().set(opt).from(element).save();
     }
 
