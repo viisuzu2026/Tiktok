@@ -1,255 +1,21 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ITB - TIKTOK Monthly Dashboard</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Thư viện xuất PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-</head>
-<body class="bg-slate-100 text-slate-800 p-4 md:p-8 font-sans antialiased min-h-screen">
-
-  <!-- Vùng xuất PDF sẽ lấy nội dung bên trong div này -->
-  <div id="dashboard-content" class="max-w-7xl mx-auto space-y-6">
-    
-    <!-- HEADER BÁO CÁO & BỘ LỌC THÁNG -->
-    <!-- Đổi nền thành đỏ trầm (bg-red-900) và text màu trắng (text-white) -->
-    <header class="bg-red-900 p-6 rounded-2xl shadow-md border border-red-950 flex flex-col md:flex-row justify-between items-center gap-4">
-      
-      <!-- Cột Logo + Tiêu đề -->
-      <div class="flex items-center gap-4">
-        <!-- Chèn Logo ở đây (Thay link src) -->
-        <img src="LINK_LOGO_CUA_BAN_O_DAY" alt="Logo ITB" class="h-14 w-auto object-contain bg-white rounded-lg p-1 shadow-sm" onerror="this.style.display='none'">
-        
-        <div>
-          <p class="text-xs font-bold text-red-200 uppercase tracking-widest">ISUZU TÂY BẮC SÀI GÒN</p>
-          <!-- Tiêu đề sẽ được JS cập nhật (Có chứa chữ ITB và Tháng màu đỏ) -->
-          <h1 id="txt-title" class="text-2xl md:text-3xl font-black text-white mt-1">
-            Đang tải dữ liệu...
-          </h1>
-        </div>
-      </div>
-
-      <!-- Cột Nút PDF + Lọc tháng -->
-      <div class="flex items-center gap-4 flex-wrap justify-end">
-        
-        <!-- Nút Tải PDF -->
-        <button onclick="downloadPDF()" class="bg-white text-red-900 hover:bg-slate-100 border-2 border-transparent hover:border-red-300 px-4 py-2 rounded-xl shadow font-bold text-sm transition-all flex items-center gap-2">
-          <i class="fa-solid fa-file-pdf text-red-600"></i> Tải PDF
-        </button>
-
-        <!-- Bộ lọc tháng -->
-        <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-xl shadow-inner border border-slate-200">
-          <label for="select-month" class="text-sm font-bold text-slate-700 flex items-center gap-2 whitespace-nowrap">
-            <i class="fa-regular fa-calendar text-red-600"></i> Lọc tháng:
-          </label>
-          <!-- Ép màu chữ text-slate-900 và nền trắng để không bị mất màu khi chọn -->
-          <select id="select-month" onchange="fetchData(this.value)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-900 outline-none focus:ring-2 focus:ring-red-500 cursor-pointer">
-            <option value="" disabled selected class="text-slate-900">Đang tải...</option>
-          </select>
-          <div id="loading" class="text-red-600 ml-1 animate-spin text-lg">
-            <i class="fa-solid fa-circle-notch"></i>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- 6 THẺ CHỈ SỐ TỔNG QUAN (KPIs) -->
-    <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-        <p class="text-xs font-bold text-slate-500 uppercase">Lượt Xem Video</p>
-        <h3 id="kpi-views" class="text-2xl font-black text-slate-900 mt-2">--</h3>
-        <p id="kpi-views-diff" class="text-xs text-slate-600 font-semibold mt-1">--</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-        <p class="text-xs font-bold text-slate-500 uppercase">Lượt Tương Tác</p>
-        <h3 id="kpi-engagements" class="text-2xl font-black text-slate-900 mt-2">--</h3>
-        <p id="kpi-engagements-diff" class="text-xs text-slate-600 font-semibold mt-1">--</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-        <p class="text-xs font-bold text-slate-500 uppercase">Tỷ Lệ Tương Tác (ER)</p>
-        <h3 id="kpi-er" class="text-2xl font-black text-slate-900 mt-2">--</h3>
-        <p id="kpi-er-diff" class="text-xs text-slate-600 font-semibold mt-1">--</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-        <p class="text-xs font-bold text-slate-500 uppercase">Lượt Xem Profile</p>
-        <h3 id="kpi-profile-views" class="text-2xl font-black text-slate-900 mt-2">--</h3>
-        <p id="kpi-profile-views-diff" class="text-xs text-slate-600 font-semibold mt-1">--</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-        <p class="text-xs font-bold text-slate-500 uppercase">Khách Tiềm Năng</p>
-        <h3 id="kpi-leads" class="text-2xl font-black text-slate-900 mt-2">--</h3>
-        <p id="kpi-leads-diff" class="text-xs text-slate-600 font-semibold mt-1">--</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border-2 border-red-500 bg-red-50/50 shadow-sm flex flex-col justify-between">
-        <p class="text-xs font-bold text-red-700 uppercase">Tổng Video Đăng</p>
-        <h3 id="kpi-total-videos" class="text-2xl font-black text-red-600 mt-2">--</h3>
-        <p class="text-xs text-red-500 mt-1 font-medium">Video trong tháng</p>
-      </div>
-    </section>
-
-    <!-- 2 Ô CHỦ ĐỀ NỔI BẬT -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white p-5 rounded-2xl shadow-sm flex justify-between items-center">
-        <div>
-          <p class="text-xs uppercase font-bold text-amber-100 tracking-wide">🌟 Chủ đề có nhiều lượt quan tâm nhất</p>
-          <h2 id="txt-top-view-topic" class="text-2xl font-black mt-1">--</h2>
-          <p id="txt-top-view-desc" class="text-xs text-amber-100 mt-1">--</p>
-        </div>
-        <i class="fa-solid fa-fire text-4xl opacity-80 pl-4"></i>
-      </div>
-      <div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-5 rounded-2xl shadow-sm flex justify-between items-center">
-        <div>
-          <p class="text-xs uppercase font-bold text-blue-100 tracking-wide">🌟 Chủ đề khai thác nhiều nhất</p>
-          <h2 id="txt-top-post-topic" class="text-2xl font-black mt-1">--</h2>
-          <p id="txt-top-post-desc" class="text-xs text-blue-100 mt-1">--</p>
-        </div>
-        <i class="fa-solid fa-video text-4xl opacity-80 pl-4"></i>
-      </div>
-    </section>
-
-    <!-- BẢNG PHÂN LOẠI NỘI DUNG & TOP VIDEO -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- Bảng Phân loại nội dung (Chiếm 5 cột) -->
-      <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <h3 class="font-black text-lg text-slate-800 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-layer-group text-red-600"></i> Hiệu quả theo phân loại nội dung
-          </h3>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-bold">
-                <tr>
-                  <th class="p-2.5 rounded-l-lg">Phân loại</th>
-                  <th class="p-2.5 text-center">Video</th>
-                  <th class="p-2.5 text-right">Lượt xem</th>
-                  <th class="p-2.5 text-right">Tương tác</th>
-                  <th class="p-2.5 text-right rounded-r-lg">ER</th>
-                </tr>
-              </thead>
-              <tbody id="tbl-categories" class="divide-y divide-slate-100">
-                <tr><td colspan="5" class="p-4 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cột chứa Top 5 & Bottom 3 (Chiếm 7 cột) -->
-      <div class="lg:col-span-7 space-y-6">
-        <!-- Top 5 Cao Nhất -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 class="font-black text-lg text-slate-800 mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-trophy text-amber-500"></i> Top 5 video hiệu quả cao nhất
-          </h3>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-bold">
-                <tr>
-                  <th class="p-2.5 rounded-l-lg">Top</th>
-                  <th class="p-2.5">Tiêu đề video</th>
-                  <th class="p-2.5 text-right">Lượt xem</th>
-                  <th class="p-2.5 text-right">ER</th>
-                  <th class="p-2.5 text-center rounded-r-lg">Link</th>
-                </tr>
-              </thead>
-              <tbody id="tbl-top-videos" class="divide-y divide-slate-100">
-                <tr><td colspan="5" class="p-4 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Top 3 Kém Hiệu Quả Nhất -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 class="font-black text-lg text-slate-800 mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-arrow-trend-down text-rose-500"></i> Top 3 video kém hiệu quả nhất
-          </h3>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead class="bg-rose-50 text-rose-800 text-xs uppercase font-bold">
-                <tr>
-                  <th class="p-2.5 rounded-l-lg">Top</th>
-                  <th class="p-2.5">Tiêu đề video</th>
-                  <th class="p-2.5 text-right">Lượt xem</th>
-                  <th class="p-2.5 text-right">ER</th>
-                  <th class="p-2.5 text-center rounded-r-lg">Link</th>
-                </tr>
-              </thead>
-              <tbody id="tbl-bottom-videos" class="divide-y divide-slate-100">
-                <tr><td colspan="5" class="p-4 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Ô ĐÁNH GIÁ & NHẬN XÉT HIỆU QUẢ TỰ ĐỘNG -->
-    <section class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 rounded-2xl shadow-md border border-slate-700">
-      <div class="flex items-start gap-3">
-        <div class="p-2.5 bg-red-600 rounded-xl text-white mt-1">
-          <i class="fa-solid fa-lightbulb text-xl"></i>
-        </div>
-        <div class="flex-1">
-          <h3 class="font-black text-lg text-amber-400 uppercase tracking-wide">
-            Đánh Giá & Nhận Xét Chuyên Sâu Của Tháng
-          </h3>
-          <div id="txt-auto-comment" class="mt-3 text-slate-200 text-sm leading-relaxed whitespace-pre-line font-normal">
-            Đang tổng hợp phân tích tự động từ dữ liệu...
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CHÂN DUNG KHÁCH HÀNG & BIỂU ĐỒ -->
-    <section class="space-y-6">
-      <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
-        <i class="fa-solid fa-chart-pie text-red-600"></i> Chân dung khách hàng & Khung giờ vàng
-      </h2>
-
-      <!-- Biểu đồ đường Khung giờ vàng -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-          <i class="fa-regular fa-clock text-slate-500"></i> Lượt hoạt động theo 24 khung giờ vàng trong ngày
-        </h4>
-        <div class="h-64 w-full">
-          <canvas id="chartHours"></canvas>
-        </div>
-      </div>
-
-      <!-- 3 Biểu đồ tròn -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
-          <h4 class="text-sm font-bold text-slate-700 mb-3">👥 Phân bố theo độ tuổi</h4>
-          <div class="h-52 w-52"><canvas id="chartAge"></canvas></div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
-          <h4 class="text-sm font-bold text-slate-700 mb-3">🚻 Tỷ lệ giới tính</h4>
-          <div class="h-52 w-52"><canvas id="chartGender"></canvas></div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
-          <h4 class="text-sm font-bold text-slate-700 mb-3">📍 Phân bố tỉnh thành</h4>
-          <div class="h-52 w-52"><canvas id="chartCity"></canvas></div>
-        </div>
-      </div>
-    </section>
-
-  </div>
-
-  <script>
+<script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9bShwFNLh4wXWfESwRXhmDS6Fb8H-hj6FWh1tDm7bmDJ_ktTGfOjZ0aaZ9nma7mnk/exec";
 
     let chartHoursInstance = null;
     let chartAgeInstance = null;
     let chartGenderInstance = null;
     let chartCityInstance = null;
+
+    // HÀM MỚI: Xử lý chuỗi thời gian dài thành chữ "THÁNG X"
+    function formatMonthDisplay(rawStr) {
+      if (!rawStr) return "THÁNG...";
+      // Cắt lấy đúng số tháng trong chuỗi định dạng 2026-04-30T...
+      const match = rawStr.match(/^\d{4}-(\d{2})-\d{2}/);
+      if (match) {
+        return `THÁNG ${parseInt(match[1], 10)}`; // Ví dụ: "04" -> "4"
+      }
+      return rawStr.toUpperCase();
+    }
 
     async function fetchData(month = "") {
       const loader = document.getElementById('loading');
@@ -269,7 +35,8 @@
         const selectElem = document.getElementById('select-month');
         if (data.availableMonths && (selectElem.options.length <= 1 || !selectElem.dataset.loaded)) {
           selectElem.innerHTML = data.availableMonths.map(m => `
-            <option value="${m}" ${m === data.currentMonth ? 'selected' : ''} class="text-slate-900">${m}</option>
+            <!-- Vẫn giữ value là chuỗi gốc để hệ thống hiểu, nhưng text hiển thị đã được format gọn lại -->
+            <option value="${m}" ${m === data.currentMonth ? 'selected' : ''} class="text-slate-900">${formatMonthDisplay(m)}</option>
           `).join('');
           selectElem.dataset.loaded = "true";
         } else if (data.currentMonth) {
@@ -277,9 +44,10 @@
         }
 
         // 2. Cập nhật Title: ITB (đỏ) - HIỆU QUẢ TIKTOK ORGANIC - THÁNG X (đỏ)
-        const displayMonth = data.currentMonth || selectElem.value || "THÁNG...";
+        const rawMonth = data.currentMonth || selectElem.value || "THÁNG...";
+        const displayMonth = formatMonthDisplay(rawMonth); // Dùng hàm format để làm gọn chữ
         document.getElementById('txt-title').innerHTML = `
-          <span class="text-red-400">ITB</span> - HIỆU QUẢ TIKTOK ORGANIC - <span class="text-red-400">${displayMonth.toUpperCase()}</span>
+          <span class="text-red-400">ITB</span> - HIỆU QUẢ TIKTOK ORGANIC - <span class="text-red-400">${displayMonth}</span>
         `;
 
         // 3. 6 Thẻ KPI
@@ -367,7 +135,6 @@
     }
 
     function renderCharts(data) {
-      // Biểu đồ đường Khung giờ vàng
       if (chartHoursInstance) chartHoursInstance.destroy();
       chartHoursInstance = new Chart(document.getElementById('chartHours'), {
         type: 'line',
@@ -395,7 +162,6 @@
         }
       });
 
-      // Biểu đồ tròn Độ tuổi
       if (chartAgeInstance) chartAgeInstance.destroy();
       chartAgeInstance = new Chart(document.getElementById('chartAge'), {
         type: 'doughnut',
@@ -413,7 +179,6 @@
         }
       });
 
-      // Biểu đồ tròn Giới tính
       if (chartGenderInstance) chartGenderInstance.destroy();
       chartGenderInstance = new Chart(document.getElementById('chartGender'), {
         type: 'pie',
@@ -431,7 +196,6 @@
         }
       });
 
-      // Biểu đồ tròn Tỉnh thành
       if (chartCityInstance) chartCityInstance.destroy();
       chartCityInstance = new Chart(document.getElementById('chartCity'), {
         type: 'doughnut',
@@ -450,24 +214,23 @@
       });
     }
 
-    // Hàm thực thi tải PDF
     function downloadPDF() {
       const element = document.getElementById('dashboard-content');
-      const currentMonth = document.getElementById('select-month').value || "Bao_Cao";
+      
+      // Lấy tên tháng gọn gàng cho tên file
+      const rawMonth = document.getElementById('select-month').value;
+      const safeMonthName = formatMonthDisplay(rawMonth).replace(' ', '_') || "Bao_Cao";
       
       const opt = {
         margin:       0.2,
-        filename:     `ITB_Tiktok_${currentMonth}.pdf`,
+        filename:     `ITB_Tiktok_${safeMonthName}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#f1f5f9' },
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
 
-      // Tạm ẩn biểu tượng load và select dropdown khi in (để bản in đẹp hơn) nếu cần
       html2pdf().set(opt).from(element).save();
     }
 
     window.addEventListener('DOMContentLoaded', () => fetchData());
   </script>
-</body>
-</html>
