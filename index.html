@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ITB - TIKTOK Monthly Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 md:p-8">
+
+  <div class="max-w-7xl mx-auto space-y-6">
+    
+    <!-- HEADER -->
+    <header class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div>
+        <p class="text-xs font-bold text-red-600 uppercase tracking-widest">ISUZU TÂY BẮC SÀI GÒN</p>
+        <h1 id="txt-title" class="text-2xl md:text-3xl font-black text-slate-900 mt-1">
+          ITB - HIỆU QUẢ TIKTOK ORGANIC
+        </h1>
+      </div>
+      <div class="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl">
+        <label for="select-month" class="text-sm font-semibold text-slate-600 flex items-center gap-2">
+          <i class="fa-regular fa-calendar text-red-600"></i> Lọc tháng:
+        </label>
+        <select id="select-month" onchange="fetchData(this.value)" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-red-500">
+          <option value="Tháng 05/2026" selected>Tháng 05/2026</option>
+          <option value="Tháng 04/2026">Tháng 04/2026</option>
+          <option value="Tháng 03/2026">Tháng 03/2026</option>
+        </select>
+        <div id="loading" class="hidden text-red-600 ml-2 animate-spin"><i class="fa-solid fa-circle-notch"></i></div>
+      </div>
+    </header>
+
+    <!-- 6 THẺ CHỈ SỐ (KPIs) -->
+    <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-bold text-slate-500 uppercase">Lượt Xem Video</p>
+        <h3 id="kpi-views" class="text-2xl font-black text-slate-900 mt-1">--</h3>
+        <p id="kpi-views-diff" class="text-xs text-rose-500 font-semibold mt-1">--</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-bold text-slate-500 uppercase">Lượt Tương Tác</p>
+        <h3 id="kpi-engagements" class="text-2xl font-black text-slate-900 mt-1">--</h3>
+        <p id="kpi-engagements-diff" class="text-xs text-rose-500 font-semibold mt-1">--</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-bold text-slate-500 uppercase">Tỷ Lệ Tương Tác (ER)</p>
+        <h3 id="kpi-er" class="text-2xl font-black text-slate-900 mt-1">--</h3>
+        <p id="kpi-er-diff" class="text-xs text-rose-500 font-semibold mt-1">--</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-bold text-slate-500 uppercase">Lượt Xem Profile</p>
+        <h3 id="kpi-profile-views" class="text-2xl font-black text-slate-900 mt-1">--</h3>
+        <p id="kpi-profile-views-diff" class="text-xs text-rose-500 font-semibold mt-1">--</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-bold text-slate-500 uppercase">Khách Tiềm Năng</p>
+        <h3 id="kpi-leads" class="text-2xl font-black text-slate-900 mt-1">--</h3>
+        <p id="kpi-leads-diff" class="text-xs text-rose-500 font-semibold mt-1">--</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border-2 border-red-500 bg-red-50/40 shadow-sm">
+        <p class="text-xs font-bold text-red-700 uppercase">Tổng Video Đăng</p>
+        <h3 id="kpi-total-videos" class="text-2xl font-black text-red-600 mt-1">--</h3>
+        <p class="text-xs text-slate-500 mt-1 font-medium">Video trong tháng</p>
+      </div>
+    </section>
+
+    <!-- 2 Ô CHỦ ĐỀ NỔI BẬT -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white p-5 rounded-2xl shadow-sm flex justify-between items-center">
+        <div>
+          <p class="text-xs uppercase font-bold text-amber-100">🌟 Chủ đề có nhiều lượt quan tâm nhất</p>
+          <h2 id="txt-top-view-topic" class="text-2xl font-black mt-1">--</h2>
+          <p id="txt-top-view-desc" class="text-xs text-amber-100 mt-1">--</p>
+        </div>
+        <i class="fa-solid fa-fire text-4xl opacity-80"></i>
+      </div>
+      <div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-5 rounded-2xl shadow-sm flex justify-between items-center">
+        <div>
+          <p class="text-xs uppercase font-bold text-blue-100">🌟 Chủ đề khai thác nhiều nhất</p>
+          <h2 id="txt-top-post-topic" class="text-2xl font-black mt-1">--</h2>
+          <p id="txt-top-post-desc" class="text-xs text-blue-100 mt-1">--</p>
+        </div>
+        <i class="fa-solid fa-video text-4xl opacity-80"></i>
+      </div>
+    </section>
+
+    <!-- BẢNG PHÂN LOẠI & TOP 5 VIDEO -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 class="font-black text-lg text-slate-800 mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-layer-group text-red-600"></i> Hiệu quả theo phân loại nội dung
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-bold">
+              <tr>
+                <th class="p-2.5 rounded-l-lg">Phân loại</th>
+                <th class="p-2.5 text-center">Số video</th>
+                <th class="p-2.5 text-right">Lượt xem</th>
+                <th class="p-2.5 text-right">Tương tác</th>
+                <th class="p-2.5 text-right rounded-r-lg">ER</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-categories" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 class="font-black text-lg text-slate-800 mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-trophy text-amber-500"></i> Top 5 video hiệu quả cao nhất
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-bold">
+              <tr>
+                <th class="p-2.5 rounded-l-lg">Top</th>
+                <th class="p-2.5">Tiêu đề video</th>
+                <th class="p-2.5 text-right">Lượt xem</th>
+                <th class="p-2.5 text-right">ER</th>
+                <th class="p-2.5 text-center rounded-r-lg">Link</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-top-videos" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHÂN DUNG KHÁCH HÀNG & BIỂU ĐỒ -->
+    <section class="space-y-6">
+      <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+        <i class="fa-solid fa-chart-pie text-red-600"></i> Chân dung khách hàng & Khung giờ vàng
+      </h2>
+
+      <!-- Biểu đồ đường Khung giờ vàng -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <h4 class="text-sm font-bold text-slate-700 mb-3">⏰ Lượt hoạt động theo 24 khung giờ vàng trong ngày</h4>
+        <div class="h-64 w-full">
+          <canvas id="chartHours"></canvas>
+        </div>
+      </div>
+
+      <!-- 3 Biểu đồ tròn -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+          <h4 class="text-sm font-bold text-slate-700 mb-3">👥 Phân bố theo độ tuổi</h4>
+          <div class="h-52 w-52"><canvas id="chartAge"></canvas></div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+          <h4 class="text-sm font-bold text-slate-700 mb-3">🚻 Tỷ lệ giới tính</h4>
+          <div class="h-52 w-52"><canvas id="chartGender"></canvas></div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+          <h4 class="text-sm font-bold text-slate-700 mb-3">📍 Phân bố tỉnh thành</h4>
+          <div class="h-52 w-52"><canvas id="chartCity"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // DÁN ĐƯỜNG DẪN WEB APP APPS SCRIPT CỦA BẠN VÀO ĐÂY:
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLPpF4dHeSezyrYreliHfFgVjYLmzmxja4Wug8KC7YZbGGVdfpx664-CYuFhjLfufm/exec";
+
+    let chartHoursInstance = null;
+    let chartAgeInstance = null;
+    let chartGenderInstance = null;
+    let chartCityInstance = null;
+
+    async function fetchData(month = "") {
+      const loader = document.getElementById('loading');
+      loader.classList.remove('hidden');
+
+      try {
+        const url = month ? `${SCRIPT_URL}?month=${encodeURIComponent(month)}` : SCRIPT_URL;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        // 1. Tiêu đề
+        document.getElementById('txt-title').innerText = data.title;
+
+        // 2. Điền KPI Cards
+        document.getElementById('kpi-views').innerText = data.kpis.views;
+        document.getElementById('kpi-views-diff').innerText = data.kpis.views_diff;
+        document.getElementById('kpi-engagements').innerText = data.kpis.engagements;
+        document.getElementById('kpi-engagements-diff').innerText = data.kpis.engagements_diff;
+        document.getElementById('kpi-er').innerText = data.kpis.er;
+        document.getElementById('kpi-er-diff').innerText = data.kpis.er_diff;
+        document.getElementById('kpi-profile-views').innerText = data.kpis.profile_views;
+        document.getElementById('kpi-profile-views-diff').innerText = data.kpis.profile_views_diff;
+        document.getElementById('kpi-leads').innerText = data.kpis.leads;
+        document.getElementById('kpi-leads-diff').innerText = data.kpis.leads_diff;
+        document.getElementById('kpi-total-videos').innerText = data.kpis.total_videos;
+
+        // 3. Hai chủ đề nổi bật
+        document.getElementById('txt-top-view-topic').innerText = data.highlights.top_view_topic;
+        document.getElementById('txt-top-view-desc').innerText = `Chiếm ${data.highlights.top_view_share} tổng view (${data.highlights.top_view_count} views)`;
+        document.getElementById('txt-top-post-topic').innerText = data.highlights.top_post_topic;
+        document.getElementById('txt-top-post-desc').innerText = `Đã xuất bản ${data.highlights.top_post_count} video trong tháng`;
+
+        // 4. Bảng Phân loại nội dung
+        const catBody = document.getElementById('tbl-categories');
+        catBody.innerHTML = data.contentCategories.map(r => `
+          <tr>
+            <td class="py-2.5 font-bold">${r.category}</td>
+            <td class="py-2.5 text-center">${r.videos}</td>
+            <td class="py-2.5 text-right font-medium">${r.views}</td>
+            <td class="py-2.5 text-right">${r.engagements}</td>
+            <td class="py-2.5 text-right font-semibold text-slate-700">${r.er}</td>
+          </tr>
+        `).join('');
+
+        // 5. Bảng Top 5 Video
+        const topBody = document.getElementById('tbl-top-videos');
+        topBody.innerHTML = data.topVideos.map(v => `
+          <tr>
+            <td class="py-2.5 font-bold text-amber-600">#${v.rank}</td>
+            <td class="py-2.5 max-w-[200px] truncate" title="${v.title}">${v.title}</td>
+            <td class="py-2.5 text-right font-bold">${v.views}</td>
+            <td class="py-2.5 text-right">${v.er}</td>
+            <td class="py-2.5 text-center"><a href="#" class="text-red-600 hover:text-red-800 font-bold"><i class="fa-brands fa-tiktok"></i></a></td>
+          </tr>
+        `).join('');
+
+        // 6. Vẽ lại các biểu đồ
+        renderCharts(data);
+
+      } catch (err) {
+        console.error("Lỗi nạp dữ liệu:", err);
+      } finally {
+        loader.classList.add('hidden');
+      }
+    }
+
+    function renderCharts(data) {
+      // 1. Biểu đồ Đường (Khung giờ)
+      if (chartHoursInstance) chartHoursInstance.destroy();
+      chartHoursInstance = new Chart(document.getElementById('chartHours'), {
+        type: 'line',
+        data: {
+          labels: data.hourlyChart.labels,
+          datasets: [{
+            label: 'Lượt hoạt động TB',
+            data: data.hourlyChart.data,
+            borderColor: '#dc2626',
+            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 3,
+            pointBackgroundColor: '#dc2626'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { grid: { display: false } } }
+        }
+      });
+
+      // 2. Biểu đồ Độ tuổi
+      if (chartAgeInstance) chartAgeInstance.destroy();
+      chartAgeInstance = new Chart(document.getElementById('chartAge'), {
+        type: 'doughnut',
+        data: {
+          labels: data.ageChart.labels,
+          datasets: [{
+            data: data.ageChart.data,
+            backgroundColor: ['#f87171', '#dc2626', '#b91c1c', '#991b1b', '#cbd5e1']
+          }]
+        },
+        options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10 } } } }
+      });
+
+      // 3. Biểu đồ Giới tính
+      if (chartGenderInstance) chartGenderInstance.destroy();
+      chartGenderInstance = new Chart(document.getElementById('chartGender'), {
+        type: 'pie',
+        data: {
+          labels: data.genderChart.labels,
+          datasets: [{
+            data: data.genderChart.data,
+            backgroundColor: ['#2563eb', '#ec4899', '#94a3b8']
+          }]
+        },
+        options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10 } } } }
+      });
+
+      // 4. Biểu đồ Tỉnh thành
+      if (chartCityInstance) chartCityInstance.destroy();
+      chartCityInstance = new Chart(document.getElementById('chartCity'), {
+        type: 'doughnut',
+        data: {
+          labels: data.cityChart.labels,
+          datasets: [{
+            data: data.cityChart.data,
+            backgroundColor: ['#dc2626', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#94a3b8']
+          }]
+        },
+        options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10 } } } }
+      });
+    }
+
+    // Tải dữ liệu ban đầu khi vừa mở trang
+    window.addEventListener('DOMContentLoaded', () => fetchData());
+  </script>
+</body>
+</html>
