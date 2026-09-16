@@ -12,10 +12,27 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <!-- Thư viện xuất PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    /* Thanh cuộn mềm mại cho khung biểu đồ trượt ngang */
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
 </head>
 <body class="bg-slate-100 text-slate-800 p-4 md:p-8 font-sans antialiased min-h-screen relative">
 
-  <!-- MÀN HÌNH LOADING MỜ TOÀN TRANG (Giúp người dùng biết web đang lấy dữ liệu) -->
+  <!-- MÀN HÌNH LOADING MỜ TOÀN TRANG -->
   <div id="page-loader" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col justify-center items-center hidden transition-opacity">
     <i class="fa-solid fa-circle-notch animate-spin text-red-600 text-5xl mb-4"></i>
     <p class="text-slate-800 font-bold text-lg">Đang đồng bộ dữ liệu từ Google Sheets...</p>
@@ -23,35 +40,35 @@
   </div>
 
   <div id="dashboard-content" class="max-w-7xl mx-auto space-y-6">
-    
-    <!-- HEADER BÁO CÁO & BỘ LỌC THÁNG -->
-    <header class="bg-red-900 p-6 rounded-2xl shadow-md border border-red-950 flex flex-col md:flex-row justify-between items-center gap-4">
-      
-      <!-- Cột Logo + Tiêu đề -->
+
+    <!-- HEADER BÁO CÁO & BỘ LỌC KHOẢNG NGÀY TÙY CHỌN -->
+    <header class="bg-red-900 p-6 rounded-2xl shadow-md border border-red-950 flex flex-col lg:flex-row justify-between items-center gap-4">
+      <!-- Logo + Tiêu đề -->
       <div class="flex items-center gap-4">
         <img src="https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/329677254_3635108843383586_1277159605822078066_n.jpg?stp=dst-jpg_tt6&cstp=mx1786x1786&ctp=s1786x1786&_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=aCQMbTgRN3wQ7kNvwHPIpSK&_nc_oc=AdrOnRGoowU6BfaJQRheklTf65Gqo2nMMtywhQxvFC03i1jYE8r5L_bQxqD7tHEM3fE&_nc_zt=23&_nc_ht=scontent.fsgn2-3.fna&_nc_gid=mcYZ6tJtmgbOCnRbTq5bqg&_nc_ss=7b289&oh=00_AQKjb61F3Q69GBuAywDNzyMtxQwmvVut3lTaNcnUPF4KHQ&oe=6AAD7F73" alt="Logo ITB" class="h-14 w-auto object-contain bg-white rounded-lg p-1 shadow-sm" onerror="this.style.display='none'">
-        
         <div>
           <p class="text-xs font-bold text-red-200 uppercase tracking-widest">ISUZU TÂY BẮC SÀI GÒN</p>
-          <h1 id="txt-title" class="text-2xl md:text-3xl font-black text-white mt-1">
-            Đang tải dữ liệu...
+          <h1 id="txt-title" class="text-xl md:text-2xl font-black text-white mt-1">
+            <span class="text-yellow-400">ITB</span> - HIỆU QUẢ TIKTOK ORGANIC
           </h1>
         </div>
       </div>
 
-      <!-- Cột Nút PDF + Lọc tháng -->
-      <div class="flex items-center gap-4 flex-wrap justify-end">
-        <button onclick="downloadPDF()" class="bg-white text-red-900 hover:bg-slate-100 border-2 border-transparent hover:border-red-300 px-4 py-2 rounded-xl shadow font-bold text-sm transition-all flex items-center gap-2">
+      <!-- Bộ chọn mốc ngày tự do + Nút Tải PDF -->
+      <div class="flex items-center gap-3 flex-wrap justify-end">
+        <button onclick="downloadPDF()" class="bg-white text-red-900 hover:bg-slate-100 border-2 border-transparent hover:border-red-300 px-3.5 py-2 rounded-xl shadow font-bold text-sm transition-all flex items-center gap-2">
           <i class="fa-solid fa-file-pdf text-red-600"></i> Tải PDF
         </button>
 
-        <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-xl shadow-inner border border-slate-200">
-          <label for="select-month" class="text-sm font-bold text-slate-700 flex items-center gap-2 whitespace-nowrap">
-            <i class="fa-regular fa-calendar text-red-600"></i> Lọc tháng:
-          </label>
-          <select id="select-month" onchange="fetchData(this.value)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-900 outline-none focus:ring-2 focus:ring-red-500 cursor-pointer">
-            <option value="" disabled selected class="text-slate-900">Đang tải...</option>
-          </select>
+        <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-xl shadow-inner border border-slate-200 text-sm font-bold text-slate-700 flex-wrap">
+          <span class="flex items-center gap-1.5"><i class="fa-regular fa-calendar text-red-600"></i> Từ:</span>
+          <input type="date" id="input-start-date" class="bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-red-500 cursor-pointer">
+          <span class="text-slate-400">-</span>
+          <span>Đến:</span>
+          <input type="date" id="input-end-date" class="bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-red-500 cursor-pointer">
+          <button onclick="applyDateFilter()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
+            <i class="fa-solid fa-filter text-[10px]"></i> Lọc
+          </button>
         </div>
       </div>
     </header>
@@ -86,7 +103,7 @@
       <div class="bg-white p-4 rounded-xl border-2 border-red-500 bg-red-50/50 shadow-sm flex flex-col justify-between">
         <p class="text-xs font-bold text-red-700 uppercase">Tổng Video Đăng</p>
         <h3 id="kpi-total-videos" class="text-2xl font-black text-red-600 mt-2">--</h3>
-        <p class="text-xs text-red-500 mt-1 font-medium">Video trong tháng</p>
+        <p class="text-xs text-red-500 mt-1 font-medium">Video trong kỳ</p>
       </div>
     </section>
 
@@ -110,32 +127,37 @@
       </div>
     </section>
 
-    <!-- BẢNG PHÂN LOẠI & TOP VIDEO -->
+    <!-- BẢNG TOP 3 CHỦ ĐỀ & TOP/BOTTOM VIDEOS -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Cột trái: TOP 3 CHỦ ĐỀ HIỆU QUẢ CAO NHẤT -->
       <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
         <div>
           <h3 class="font-black text-lg text-slate-800 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-layer-group text-red-600"></i> Hiệu quả theo phân loại nội dung
+            <i class="fa-solid fa-ranking-star text-red-600"></i> Top 3 chủ đề hiệu quả cao nhất
           </h3>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
               <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-bold">
                 <tr>
-                  <th class="p-2.5 rounded-l-lg">Phân loại</th>
+                  <th class="p-2.5 rounded-l-lg text-center">Top</th>
+                  <th class="p-2.5">Chủ đề</th>
                   <th class="p-2.5 text-center">Video</th>
                   <th class="p-2.5 text-right">Lượt xem</th>
                   <th class="p-2.5 text-right">Tương tác</th>
                   <th class="p-2.5 text-right rounded-r-lg">ER</th>
                 </tr>
               </thead>
-              <tbody id="tbl-categories" class="divide-y divide-slate-100">
-                <tr><td colspan="5" class="p-4 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
+              <tbody id="tbl-top-themes" class="divide-y divide-slate-100">
+                <tr><td colspan="6" class="p-4 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
+        <p class="text-[11px] text-slate-400 mt-3 italic">* Xếp hạng tự động theo tổng lượt xem trong khoảng thời gian đã chọn</p>
       </div>
 
+      <!-- Cột phải: TOP 5 VIDEO CAO NHẤT & TOP 3 VIDEO KÉM NHẤT -->
       <div class="lg:col-span-7 space-y-6">
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <h3 class="font-black text-lg text-slate-800 mb-3 flex items-center gap-2">
@@ -183,7 +205,41 @@
       </div>
     </section>
 
-    <!-- NHẬN XÉT -->
+    <!-- 2 BIỂU ĐỒ BỔ SUNG: COMBO THEO NGÀY (KÉO TRƯỢT CHUỘT) & CỘT THEO THÁNG -->
+    <section class="space-y-6">
+      
+      <!-- Biểu đồ Combo theo từng ngày: Cột đôi (Lượt xem + Tương tác) + Đường ER -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
+          <h3 class="font-black text-lg text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-chart-column text-red-600"></i> Hiệu quả từng ngày (Lượt xem, Tương tác & Tỷ lệ ER)
+          </h3>
+          <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5">
+            <i class="fa-solid fa-arrows-left-right"></i> Nhấp giữ chuột để kéo xem qua trái / phải
+          </span>
+        </div>
+        
+        <!-- Khung cho phép trượt / kéo chuột ngang -->
+        <div id="dragContainer" class="overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing select-none custom-scrollbar pb-2">
+          <div id="dragChartWrapper" style="min-width: 950px; height: 360px;">
+            <canvas id="chartDailyCombo"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Biểu đồ Cột: Số lượng video đăng từng tháng -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 class="font-black text-lg text-slate-800 mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-calendar-days text-red-600"></i> Số lượng video đăng tải theo từng tháng
+        </h3>
+        <div class="h-64 w-full">
+          <canvas id="chartMonthlyVideos"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- NHẬN XÉT & ĐÁNH GIÁ CHUYÊN SÂU -->
     <section class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 rounded-2xl shadow-md border border-slate-700">
       <div class="flex items-start gap-3">
         <div class="p-2.5 bg-red-600 rounded-xl text-white mt-1">
@@ -191,7 +247,7 @@
         </div>
         <div class="flex-1">
           <h3 class="font-black text-lg text-amber-400 uppercase tracking-wide">
-            Đánh Giá & Nhận Xét Chuyên Sâu Của Tháng
+            Đánh Giá & Nhận Xét Chuyên Sâu Của Kỳ Báo Cáo
           </h3>
           <div id="txt-auto-comment" class="mt-3 text-slate-200 text-sm leading-relaxed whitespace-pre-line font-normal">
             Đang tổng hợp phân tích tự động từ dữ liệu...
@@ -200,11 +256,12 @@
       </div>
     </section>
 
-    <!-- BIỂU ĐỒ -->
+    <!-- BIỂU ĐỒ NHÂN KHẨU HỌC & KHUNG GIỜ VÀNG -->
     <section class="space-y-6">
       <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
         <i class="fa-solid fa-chart-pie text-red-600"></i> Chân dung khách hàng & Khung giờ vàng
       </h2>
+      
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
         <h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
           <i class="fa-regular fa-clock text-slate-500"></i> Lượt hoạt động theo 24 khung giờ vàng trong ngày
@@ -213,6 +270,7 @@
           <canvas id="chartHours"></canvas>
         </div>
       </div>
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
           <h4 class="text-sm font-bold text-slate-700 mb-3">👥 Phân bố theo độ tuổi</h4>
@@ -231,58 +289,80 @@
 
   </div>
 
+  <!-- JAVASCRIPT XỬ LÝ DỮ LIỆU & RENDER BIỂU ĐỒ -->
   <script>
+    // URL Web App triển khai chính xác từ Apps Script của bạn
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9bShwFNLh4wXWfESwRXhmDS6Fb8H-hj6FWh1tDm7bmDJ_ktTGfOjZ0aaZ9nma7mnk/exec";
-    let chartHoursInstance = null, chartAgeInstance = null, chartGenderInstance = null, chartCityInstance = null;
 
-    function formatMonthDisplay(rawStr) {
-      if (!rawStr) return "THÁNG...";
-      const match = String(rawStr).match(/^\d{4}-(\d{2})-\d{2}/);
-      return match ? `THÁNG ${parseInt(match[1], 10)}` : String(rawStr).toUpperCase();
+    let chartHoursInstance = null;
+    let chartAgeInstance = null;
+    let chartGenderInstance = null;
+    let chartCityInstance = null;
+    let chartDailyComboInstance = null;
+    let chartMonthlyVideosInstance = null;
+
+    // Hàm chuyển đổi định dạng ngày YYYY-MM-DD an toàn cho input date
+    function formatToDateInput(val) {
+      if (!val) return "";
+      const match = String(val).match(/^\d{4}-\d{2}-\d{2}/);
+      if (match) return match[0];
+      const d = new Date(val);
+      if (!isNaN(d.getTime())) {
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      }
+      return "";
     }
-function updateKpiDiff(elementId, value) {
+
+    function updateKpiDiff(elementId, value) {
       const el = document.getElementById(elementId);
       if (!el) return;
-      
-      // Xóa màu mặc định
       el.classList.remove('text-slate-600', 'text-green-600', 'text-red-600');
-      
       if (!value || value.trim() === "") {
         el.innerText = "--";
         el.classList.add('text-slate-600');
         return;
       }
-
       const strValue = String(value).toLowerCase();
-      // Nếu có dấu + hoặc chữ tăng hoặc mũi tên lên -> Màu Xanh lá
       if (strValue.includes('+') || strValue.includes('tăng') || strValue.includes('▲')) {
         el.classList.add('text-green-600');
         el.innerHTML = `<i class="fa-solid fa-arrow-up text-[10px] mr-1"></i>${value}`;
-      } 
-      // Nếu có dấu - hoặc chữ giảm hoặc mũi tên xuống -> Màu Đỏ
-      else if (strValue.includes('-') || strValue.includes('giảm') || strValue.includes('▼')) {
+      } else if (strValue.includes('-') || strValue.includes('giảm') || strValue.includes('▼')) {
         el.classList.add('text-red-600');
         el.innerHTML = `<i class="fa-solid fa-arrow-down text-[10px] mr-1"></i>${value}`;
-      } 
-      // Không tăng không giảm -> Màu xám
-      else {
+      } else {
         el.innerText = value;
         el.classList.add('text-slate-600');
       }
     }
-    async function fetchData(month = "") {
+
+    // Khi người dùng bấm nút "Lọc"
+    function applyDateFilter() {
+      const startDate = document.getElementById('input-start-date').value;
+      const endDate = document.getElementById('input-end-date').value;
+      if (!startDate || !endDate) {
+        alert("Vui lòng chọn đầy đủ cả Ngày bắt đầu và Ngày kết thúc!");
+        return;
+      }
+      fetchData(startDate, endDate);
+    }
+
+    // Hàm gọi API lấy dữ liệu từ Google Sheets
+    async function fetchData(startDate = "", endDate = "") {
       const loader = document.getElementById('page-loader');
-      loader.classList.remove('hidden'); // Hiển thị màn hình loading
+      loader.classList.remove('hidden');
 
       try {
-        // THÊM &t=... ĐỂ CHỐNG TRÌNH DUYỆT LƯU CACHE GÂY SAI DỮ LIỆU
         const cacheBuster = new Date().getTime();
         let url = SCRIPT_URL;
-        if (month) {
-          url += `?month=${encodeURIComponent(month)}&_t=${cacheBuster}`;
-        } else {
-          url += `?_t=${cacheBuster}`;
-        }
+        const params = [];
+        if (startDate) params.push(`startDate=${encodeURIComponent(startDate)}`);
+        if (endDate) params.push(`endDate=${encodeURIComponent(endDate)}`);
+        params.push(`_t=${cacheBuster}`);
+        
+        url += (url.includes('?') ? '&' : '?') + params.join('&');
 
         const res = await fetch(url);
         const data = await res.json();
@@ -293,33 +373,25 @@ function updateKpiDiff(elementId, value) {
           return;
         }
 
-        const selectElem = document.getElementById('select-month');
-        if (data.availableMonths && (selectElem.options.length <= 1 || !selectElem.dataset.loaded)) {
-          selectElem.innerHTML = data.availableMonths.map(m => `
-            <option value="${m}" ${m === data.currentMonth ? 'selected' : ''} class="text-slate-900">${formatMonthDisplay(m)}</option>
-          `).join('');
-          selectElem.dataset.loaded = "true";
-        } else if (data.currentMonth) {
-          // Tìm đúng option có chữ "THÁNG..." khớp để hiển thị, tránh lỗi trắng ô do lệch múi giờ
-          const matchedOpt = Array.from(selectElem.options).find(
-            opt => formatMonthDisplay(opt.value) === formatMonthDisplay(data.currentMonth)
-          );
-          
-          if (matchedOpt) {
-            selectElem.value = matchedOpt.value;
-          } else if (month) {
-            selectElem.value = month; // Giữ nguyên lựa chọn bạn vừa bấm
-          }
+        // Tự động điền ngày thực tế đang chọn từ Google Sheet vào 2 ô lịch
+        if (data.startDate) {
+          const sFormatted = formatToDateInput(data.startDate);
+          if (sFormatted) document.getElementById('input-start-date').value = sFormatted;
+        }
+        if (data.endDate) {
+          const eFormatted = formatToDateInput(data.endDate);
+          if (eFormatted) document.getElementById('input-end-date').value = eFormatted;
         }
 
-        const rawMonth = data.currentMonth || selectElem.value || "THÁNG...";
-        
+        // Tiêu đề Dashboard
         document.getElementById('txt-title').innerHTML = `
-          <span class="text-yellow-400">ITB</span> - HIỆU QUẢ TIKTOK ORGANIC <span class="text-yellow-400"></span>
+          <span class="text-yellow-400">ITB</span> - HIỆU QUẢ TIKTOK ORGANIC 
+          <span class="text-sm font-normal text-red-200 block md:inline md:ml-2">(${data.startDate || ''} - ${data.endDate || ''})</span>
         `;
 
+        // 6 Thẻ KPIs
         document.getElementById('kpi-views').innerText = data?.kpis?.views || 0;
-        updateKpiDiff('kpi-views-diff', data?.kpis?.views_diff); 
+        updateKpiDiff('kpi-views-diff', data?.kpis?.views_diff);
         document.getElementById('kpi-engagements').innerText = data?.kpis?.engagements || 0;
         updateKpiDiff('kpi-engagements-diff', data?.kpis?.engagements_diff);
         document.getElementById('kpi-er').innerText = data?.kpis?.er || "0.00%";
@@ -330,28 +402,32 @@ function updateKpiDiff(elementId, value) {
         updateKpiDiff('kpi-leads-diff', data?.kpis?.leads_diff);
         document.getElementById('kpi-total-videos').innerText = data?.kpis?.total_videos || 0;
 
+        // Highlights
         document.getElementById('txt-top-view-topic').innerText = data?.highlights?.top_view_topic || "--";
         document.getElementById('txt-top-view-desc').innerText = `Chiếm ${data?.highlights?.top_view_share || '0%'} tổng view (${data?.highlights?.top_view_count || 0} views)`;
         document.getElementById('txt-top-post-topic').innerText = data?.highlights?.top_post_topic || "--";
-        document.getElementById('txt-top-post-desc').innerText = `Đã xuất bản ${data?.highlights?.top_post_count || 0} video trong tháng`;
+        document.getElementById('txt-top-post-desc').innerText = `Đã xuất bản ${data?.highlights?.top_post_count || 0} video trong kỳ`;
 
-        const catBody = document.getElementById('tbl-categories');
-        if (data?.contentCategories?.length > 0) {
-          catBody.innerHTML = data.contentCategories.map(r => `
+        // 1. Render Bảng TOP 3 CHỦ ĐỀ HIỆU QUẢ CAO NHẤT
+        const themesBody = document.getElementById('tbl-top-themes');
+        if (data?.topThemes && data.topThemes.length > 0) {
+          themesBody.innerHTML = data.topThemes.map(r => `
             <tr class="hover:bg-slate-50 transition">
-              <td class="py-2 font-bold">${r.category}</td>
-              <td class="py-2 text-center">${r.videos}</td>
-              <td class="py-2 text-right font-medium">${r.views}</td>
-              <td class="py-2 text-right">${r.engagements}</td>
-              <td class="py-2 text-right font-semibold text-slate-700">${r.er}</td>
+              <td class="py-2.5 text-center font-bold text-red-700">#${r.rank}</td>
+              <td class="py-2.5 font-bold text-slate-800">${r.theme}</td>
+              <td class="py-2.5 text-center font-medium">${r.videos}</td>
+              <td class="py-2.5 text-right font-medium">${Number(r.views).toLocaleString('vi-VN')}</td>
+              <td class="py-2.5 text-right font-medium">${Number(r.engagements).toLocaleString('vi-VN')}</td>
+              <td class="py-2.5 text-right font-semibold text-blue-600">${r.er}</td>
             </tr>
           `).join('');
         } else {
-          catBody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Không có dữ liệu</td></tr>`;
+          themesBody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-400">Không có dữ liệu trong khoảng thời gian này</td></tr>`;
         }
 
+        // 2. Render Top 5 Videos
         const topBody = document.getElementById('tbl-top-videos');
-        if (data?.topVideos?.length > 0) {
+        if (data?.topVideos && data.topVideos.length > 0) {
           topBody.innerHTML = data.topVideos.map(v => `
             <tr class="hover:bg-slate-50 transition">
               <td class="py-2 font-bold text-amber-600">#${v.rank}</td>
@@ -367,8 +443,9 @@ function updateKpiDiff(elementId, value) {
           topBody.innerHTML = `<tr><td colspan="5" class="py-3 text-center text-slate-400">Không có video</td></tr>`;
         }
 
+        // 3. Render Bottom 3 Videos
         const bottomBody = document.getElementById('tbl-bottom-videos');
-        if (data?.bottomVideos?.length > 0) {
+        if (data?.bottomVideos && data.bottomVideos.length > 0) {
           bottomBody.innerHTML = data.bottomVideos.map(v => `
             <tr class="hover:bg-rose-50/40 transition">
               <td class="py-2 font-bold text-rose-600">#${v.rank}</td>
@@ -384,72 +461,255 @@ function updateKpiDiff(elementId, value) {
           bottomBody.innerHTML = `<tr><td colspan="5" class="py-3 text-center text-slate-400">Không có dữ liệu</td></tr>`;
         }
 
-        document.getElementById('txt-auto-comment').innerText = data?.autoComment || "Chưa có nhận xét cho tháng này.";
+        // Nhận xét tự động
+        document.getElementById('txt-auto-comment').innerText = data?.autoComment || "Chưa có nhận xét cho khoảng thời gian này.";
 
-        renderCharts(data);
+        // Vẽ các biểu đồ
+        renderAllCharts(data);
 
       } catch (err) {
         console.error("Lỗi fetch dữ liệu:", err);
       } finally {
-        loader.classList.add('hidden'); // Tắt màn hình loading khi tải xong
+        loader.classList.add('hidden');
       }
     }
 
-    function renderCharts(data) {
-      if(chartHoursInstance) chartHoursInstance.destroy();
-      if(data?.hourlyChart) {
+    function renderAllCharts(data) {
+      // 1. Biểu đồ Combo theo từng ngày (Cột đôi Lượt xem & Tương tác, Đường Tỷ lệ ER)
+      if (chartDailyComboInstance) chartDailyComboInstance.destroy();
+      if (data?.dailyChart && data.dailyChart.labels && data.dailyChart.labels.length > 0) {
+        const wrapper = document.getElementById('dragChartWrapper');
+        const dayCount = data.dailyChart.labels.length;
+        // Tự động giãn bề rộng khi lọc số ngày dài để thanh kéo trượt hoạt động mượt mà
+        if (wrapper) {
+          wrapper.style.minWidth = `${Math.max(950, dayCount * 45)}px`;
+        }
+
+        const ctxCombo = document.getElementById('chartDailyCombo').getContext('2d');
+        chartDailyComboInstance = new Chart(ctxCombo, {
+          type: 'bar',
+          data: {
+            labels: data.dailyChart.labels,
+            datasets: [
+              {
+                label: 'Tỷ lệ ER (%)',
+                type: 'line',
+                data: data.dailyChart.er,
+                borderColor: '#2563eb', // Xanh dương
+                backgroundColor: '#2563eb',
+                tension: 0.3,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                yAxisID: 'yER',
+                order: 1
+              },
+              {
+                label: 'Lượt tương tác',
+                type: 'bar',
+                data: data.dailyChart.interactions,
+                backgroundColor: 'rgba(245, 158, 11, 0.85)', // Cam vàng
+                borderRadius: 4,
+                yAxisID: 'yVolume',
+                order: 2
+              },
+              {
+                label: 'Lượt xem',
+                type: 'bar',
+                data: data.dailyChart.views,
+                backgroundColor: 'rgba(185, 28, 28, 0.75)', // Đỏ Isuzu
+                borderRadius: 4,
+                yAxisID: 'yVolume',
+                order: 3
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+              x: { grid: { display: false } },
+              yVolume: {
+                type: 'linear',
+                position: 'left',
+                title: { display: true, text: 'Lượt xem & Tương tác' },
+                ticks: { callback: val => Number(val).toLocaleString('vi-VN') }
+              },
+              yER: {
+                type: 'linear',
+                position: 'right',
+                title: { display: true, text: 'Tỷ lệ tương tác (ER %)' },
+                ticks: { callback: val => val + '%' },
+                grid: { drawOnChartArea: false }
+              }
+            }
+          }
+        });
+      }
+
+      // 2. Biểu đồ Cột số lượng video từng tháng
+      if (chartMonthlyVideosInstance) chartMonthlyVideosInstance.destroy();
+      if (data?.monthlyChart && data.monthlyChart.labels && data.monthlyChart.labels.length > 0) {
+        const ctxMonthly = document.getElementById('chartMonthlyVideos').getContext('2d');
+        chartMonthlyVideosInstance = new Chart(ctxMonthly, {
+          type: 'bar',
+          data: {
+            labels: data.monthlyChart.labels,
+            datasets: [{
+              label: 'Số video đăng',
+              data: data.monthlyChart.counts,
+              backgroundColor: '#991b1b',
+              borderRadius: 6,
+              maxBarThickness: 40
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 },
+                title: { display: true, text: 'Số video' }
+              }
+            }
+          }
+        });
+      }
+
+      // 3. Biểu đồ Giờ
+      if (chartHoursInstance) chartHoursInstance.destroy();
+      if (data?.hourlyChart) {
         chartHoursInstance = new Chart(document.getElementById('chartHours'), {
           type: 'line',
           data: {
             labels: data.hourlyChart.labels,
-            datasets: [{ label: 'Lượt', data: data.hourlyChart.data, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.1)', fill: true, tension: 0.35, pointRadius: 3 }]
+            datasets: [{
+              label: 'Lượt',
+              data: data.hourlyChart.data,
+              borderColor: '#dc2626',
+              backgroundColor: 'rgba(220,38,38,0.1)',
+              fill: true,
+              tension: 0.35,
+              pointRadius: 3
+            }]
           },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { border: { dash: [4, 4] } } } }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false } },
+              y: { border: { dash: [4, 4] } }
+            }
+          }
         });
       }
 
-      if(chartAgeInstance) chartAgeInstance.destroy();
-      if(data?.ageChart) {
+      // 4. Biểu đồ Tuổi
+      if (chartAgeInstance) chartAgeInstance.destroy();
+      if (data?.ageChart) {
         chartAgeInstance = new Chart(document.getElementById('chartAge'), {
           type: 'doughnut',
-          data: { labels: data.ageChart.labels, datasets: [{ data: data.ageChart.data, backgroundColor: ['#f87171', '#dc2626', '#b91c1c', '#991b1b', '#cbd5e1'] }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } }
+          data: {
+            labels: data.ageChart.labels,
+            datasets: [{
+              data: data.ageChart.data,
+              backgroundColor: ['#f87171', '#dc2626', '#b91c1c', '#991b1b', '#cbd5e1']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }
+            }
+          }
         });
       }
 
-      if(chartGenderInstance) chartGenderInstance.destroy();
-      if(data?.genderChart) {
+      // 5. Biểu đồ Giới tính
+      if (chartGenderInstance) chartGenderInstance.destroy();
+      if (data?.genderChart) {
         chartGenderInstance = new Chart(document.getElementById('chartGender'), {
           type: 'pie',
-          data: { labels: data.genderChart.labels, datasets: [{ data: data.genderChart.data, backgroundColor: ['#2563eb', '#ec4899', '#94a3b8'] }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } }
+          data: {
+            labels: data.genderChart.labels,
+            datasets: [{
+              data: data.genderChart.data,
+              backgroundColor: ['#2563eb', '#ec4899', '#94a3b8']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }
+            }
+          }
         });
       }
 
-      if(chartCityInstance) chartCityInstance.destroy();
-      if(data?.cityChart) {
+      // 6. Biểu đồ Tỉnh thành
+      if (chartCityInstance) chartCityInstance.destroy();
+      if (data?.cityChart) {
         chartCityInstance = new Chart(document.getElementById('chartCity'), {
           type: 'doughnut',
-          data: { labels: data.cityChart.labels, datasets: [{ data: data.cityChart.data, backgroundColor: ['#dc2626', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#94a3b8'] }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } }
+          data: {
+            labels: data.cityChart.labels,
+            datasets: [{
+              data: data.cityChart.data,
+              backgroundColor: ['#dc2626', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#94a3b8']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }
+            }
+          }
         });
       }
     }
 
+    // ================= TÍNH NĂNG NHẤP GIỮ CHUỘT KÉO TRƯỢT NGANG (DRAG-TO-SCROLL) =================
+    const dragBox = document.getElementById('dragContainer');
+    if (dragBox) {
+      let isDown = false;
+      let startX, scrollLeft;
+
+      dragBox.addEventListener('mousedown', (e) => {
+        isDown = true;
+        startX = e.pageX - dragBox.offsetLeft;
+        scrollLeft = dragBox.scrollLeft;
+      });
+      dragBox.addEventListener('mouseleave', () => { isDown = false; });
+      dragBox.addEventListener('mouseup', () => { isDown = false; });
+      dragBox.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - dragBox.offsetLeft;
+        const walk = (x - startX) * 1.6; // Tốc độ trượt
+        dragBox.scrollLeft = scrollLeft - walk;
+      });
+    }
+
     function downloadPDF() {
       const element = document.getElementById('dashboard-content');
-      const rawMonth = document.getElementById('select-month').value;
-      const safeMonthName = formatMonthDisplay(rawMonth).replace(' ', '_') || "Bao_Cao";
-      
+      const start = document.getElementById('input-start-date').value || 'start';
+      const end = document.getElementById('input-end-date').value || 'end';
       html2pdf().set({
         margin: 0.2,
-        filename: `ITB_Tiktok_${safeMonthName}.pdf`,
+        filename: `ITB_Tiktok_${start}_den_${end}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, backgroundColor: '#f1f5f9' },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
       }).from(element).save();
     }
 
+    // Khi mở web lần đầu: gọi fetchData() không tham số -> API tự đọc mốc ngày H3 & J3 trên Google Sheet
     window.addEventListener('DOMContentLoaded', () => fetchData());
   </script>
 </body>
